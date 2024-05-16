@@ -1,7 +1,18 @@
 from htmlnode import LeafNode
 
 
+text_to_html_types = {
+    "text": None,
+    "bold": "b",
+    "italic": "i",
+    "code": "code",
+    "link": "a",
+    "image": "img",
+}
+
+
 class TextNode:
+
     def __init__(self, text, text_type, url=None):
         self.text = text
         self.text_type = text_type
@@ -19,22 +30,17 @@ class TextNode:
 
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
-    tags = {
-        "text": None,
-        "bold": "b",
-        "italic": "i",
-        "code": "code",
-        "link": "a",
-        "image": "img",
-    }
 
-    text_tag = tags.get(text_node.text_type, "not found")
-    if text_tag == "not found":
-        raise Exception(f"Unkown node text_type: {text_node.text_type}.")
+    tag = text_to_html_types.get(text_node.text_type, "invalid")
+    if tag == "invalid":
+        raise Exception(f"Invalid text type: {text_node.text_type}.")
 
-    text_props = {"href": text_node.url} if text_tag == "a" else None
+    if tag == "a":
+        return LeafNode(tag, text_node.text, {"href": text_node.url})
+    if tag == "img":
+        return LeafNode(tag, "", {"src": text_node.url, "alt": text_node.text})
 
-    return LeafNode(tag=text_tag, value=text_node.text, props=text_props)
+    return LeafNode(tag, text_node.text)
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
