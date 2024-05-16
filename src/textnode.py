@@ -54,8 +54,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             new_nodes.append(node)
             continue
         # Is the delimiter valid?
-        text_type_code = delimiter_text_types.get(delimiter, "invalid")
-        if text_type_code == "invalid":
+        delimiter_text_type = delimiter_text_types.get(delimiter, "invalid")
+        if delimiter_text_type == "invalid":
             new_nodes.append(node)
             continue
 
@@ -69,5 +69,15 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         if num_segments % 2 == 0:
             new_nodes.append(node)
             continue
+
+        split_nodes = []
+        # Text targeted by delimiter will always be odd, because the delimited
+        # text is always nested within its parent TextNode.
+        for i in range(num_segments):
+            if i % 2 == 0:
+                split_nodes.append(TextNode(text_segments[i], text_type))
+            else:
+                split_nodes.append(TextNode(text_segments[i], delimiter_text_type))
+        new_nodes.extend(split_nodes)
 
     return new_nodes

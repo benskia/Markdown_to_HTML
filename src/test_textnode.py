@@ -23,40 +23,25 @@ class TestTextNodeToHTMLNode(unittest.TestCase):
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_eq(self):
-        test_nodes = [
-            TextNode("", "link"),
-            TextNode("normal text **bold text** normal text", None),
-            TextNode("bold text *italic text* bold text", "bold"),
-            TextNode("italic text *invalid markdown text italic text", "italic"),
-        ]
+        node1 = TextNode("normal `code` normal", "text")
+        node2 = TextNode("bold *italic* bold", "bold")
+        node3 = TextNode("normal **invalid normal", "text")
+        input = [node1, node2, node3]
 
-        result1 = [
-            TextNode("", "link"),
-            TextNode("normal text ", None),
-            TextNode("bold text", "bold"),
-            TextNode(" normal text", None),
-            TextNode("bold text *italic text* bold text", "bold"),
-            TextNode("italic text *invalid markdown text italic text", "italic"),
-        ]
-        result2 = [
-            TextNode("", "link"),
-            TextNode("bold text ", "bold"),
-            TextNode("italic text", "italic"),
-            TextNode(" bold text", "bold"),
-            TextNode("bold text *italic text* bold text", "bold"),
-            TextNode("italic text *invalid markdown text italic text", "italic"),
-        ]
-        result3 = [
-            TextNode("", "link"),
-            TextNode("normal text **bold text** normal text", None),
-            TextNode("bold text *italic text* bold text", "bold"),
-            TextNode("italic text *invalid markdown text italic text", "italic"),
-        ]
+        sc1 = TextNode("normal ", "text")
+        sc2 = TextNode("code", "code")
+        sc3 = TextNode(" normal", "text")
+        code_output = [sc1, sc2, sc3, node2, node3]
 
-        input1 = split_nodes_delimiter(test_nodes, "**", None)
-        self.assertEqual(input1, result1)
-        input2 = split_nodes_delimiter(test_nodes, "*", "bold")
-        self.assertEqual(input1, result1)
+        sb1 = TextNode("bold ", "bold")
+        sb2 = TextNode("italic", "italic")
+        sb3 = TextNode(" bold", "bold")
+        bold_output = [node1, sb1, sb2, sb3, node3]
+
+        self.assertEqual(split_nodes_delimiter(input, "*", "italic"), input)
+        self.assertEqual(split_nodes_delimiter(input, "`", "text"), code_output)
+        self.assertEqual(split_nodes_delimiter(input, "*", "bold"), bold_output)
+        self.assertEqual(split_nodes_delimiter(input, "**", "text"), input)
 
 
 if __name__ == "__main__":
