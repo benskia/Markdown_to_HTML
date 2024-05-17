@@ -80,6 +80,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         # Text targeted by delimiter will always be odd, because the delimited
         # text is always nested within its parent TextNode.
         for i in range(num_segments):
+            # An empty string likely indicates we split on adjacent delimiters.
+            if text_segments[i] == "":
+                raise Exception(
+                    "Encountered an empty segment: tried to split on adjacent delimiters."
+                )
             if i % 2 == 0:
                 split_nodes.append(TextNode(text_segments[i], text_type))
             else:
