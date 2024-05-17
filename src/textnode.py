@@ -1,16 +1,6 @@
 from htmlnode import LeafNode
 
 
-text_to_html_types = {
-    "text": None,
-    "bold": "b",
-    "italic": "i",
-    "code": "code",
-    "link": "a",
-    "image": "img",
-}
-
-
 class TextNode:
 
     def __init__(self, text, text_type, url=None):
@@ -30,6 +20,14 @@ class TextNode:
 
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
+    text_to_html_types = {
+        "text": None,
+        "bold": "b",
+        "italic": "i",
+        "code": "code",
+        "link": "a",
+        "image": "img",
+    }
     tag = text_to_html_types.get(text_node.text_type, "invalid")
     if tag == "invalid":
         raise Exception(f"Invalid text type: {text_node.text_type}.")
