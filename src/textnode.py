@@ -44,51 +44,28 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    if len(old_nodes) == 0:
-        raise Exception("Node input was empty.")
-
-    delimiter_text_types = {
-        "*": "italic",
-        "**": "bold",
-        "`": "code",
-    }
-
     new_nodes = []
-    for node in old_nodes:
-        # We're only splitting "text_type" TextNodes.
-        if node.text_type != text_type:
-            new_nodes.append(node)
+    for old_node in old_nodes:
+        # We're only splitting TextNodes of type "text".
+        if old_node.text_type != "text":
+            new_nodes.append(old_node)
             continue
-        # Is the delimiter valid?
-        delimiter_text_type = delimiter_text_types.get(delimiter, "invalid")
-        if delimiter_text_type == "invalid":
-            new_nodes.append(node)
-            continue
-
-        text_segments = node.text.split(delimiter)
+        text_segments = old_node.text.split(delimiter)
         num_segments = len(text_segments)
-        # A single segment indicates no split took place.
-        if num_segments == 1:
-            new_nodes.append(node)
-            continue
         # An even number of segments indicates solo delimiters were encountered.
         if num_segments % 2 == 0:
-            new_nodes.append(node)
-            continue
-
+            raise Exception("Invalid markdown: unpaired delimiter encountered.")
         split_nodes = []
         # Text targeted by delimiter will always be odd, because the delimited
         # text is always nested within its parent TextNode.
         for i in range(num_segments):
             # An empty string likely indicates we split on adjacent delimiters.
             if text_segments[i] == "":
-                raise Exception(
-                    "Encountered an empty segment: tried to split on adjacent delimiters."
-                )
+                continue
             if i % 2 == 0:
-                split_nodes.append(TextNode(text_segments[i], text_type))
+                split_nodes.append(TextNode(text_segments[i], "text"))
             else:
-                split_nodes.append(TextNode(text_segments[i], delimiter_text_type))
+                split_nodes.append(TextNode(text_segments[i], text_type))
         new_nodes.extend(split_nodes)
 
     return new_nodes
