@@ -1,5 +1,9 @@
 import unittest
-from inline_markdown import split_nodes_delimiter
+from inline_markdown import (
+    split_nodes_delimiter,
+    extract_markdown_images,
+    extract_markdown_links,
+)
 from textnode import TextNode, text_node_to_html_node
 
 
@@ -75,3 +79,13 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_image_extraction(self):
+        input = "Text with an ![image](https://image.source) embedded image."
+        output = [("image", "https://image.source")]
+        self.assertEqual(extract_markdown_images(input), output)
+
+    def test_link_extraction(self):
+        input = "Text with a [link](https://example.com) link."
+        output = [("link", "https://example.com")]
+        self.assertEqual(extract_markdown_links(input), output)
