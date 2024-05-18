@@ -40,8 +40,8 @@ def split_nodes_image(old_nodes):
             new_nodes.append(old_node)
             continue
         for parsed_image in parsed_images:
-            if len(parsed_image) < 2:
-                continue
+            if len(parsed_image) != 2:
+                raise ValueError("Encountered unclosed image section.")
             split_nodes = []
             alt = parsed_image[0]
             url = parsed_image[1]
@@ -68,8 +68,8 @@ def split_nodes_link(old_nodes):
             new_nodes.append(old_node)
             continue
         for parsed_link in parsed_links:
-            if len(parsed_link) < 2:
-                continue
+            if len(parsed_link) != 2:
+                raise ValueError("Encountered unclosed link section.")
             split_nodes = []
             link_text = parsed_link[0]
             url = parsed_link[1]
