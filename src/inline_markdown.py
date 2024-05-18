@@ -39,17 +39,21 @@ def split_nodes_image(old_nodes):
         if len(parsed_images) == 0:
             new_nodes.append(old_node)
             continue
-        text_segments = old_node.split(f"![{parsed_images[0]}]({parsed_images[1]})", 1)
-        num_segments = len(text_segments)
-        split_nodes = []
-        for i in range(num_segments):
-            if text_segments[i] == "":
+        for parsed_image in parsed_images:
+            if len(parsed_image) < 2:
                 continue
-            if i % 2 == 0:
-                split_nodes.append(TextNode(text_segments[i], "text"))
-            else:
-                split_nodes.append(TextNode(text_segments[i], "image"))
-        new_nodes.extend(split_nodes)
+            split_nodes = []
+            alt = parsed_image[0]
+            url = parsed_image[1]
+            text_segments = old_node.text.split(f"![{alt}]({url})", 1)
+            first = text_segments[0]
+            last = text_segments[1]
+            if first != "":
+                split_nodes.append(TextNode(first, "text"))
+            split_nodes.append(TextNode(alt, "image", url))
+            if last != "":
+                split_nodes.append(TextNode(last, "text"))
+            new_nodes.extend(split_nodes)
     return new_nodes
 
 
@@ -63,17 +67,21 @@ def split_nodes_link(old_nodes):
         if len(parsed_links) == 0:
             new_nodes.append(old_node)
             continue
-        text_segments = old_node.split(f"![{parsed_links[0]}]({parsed_links[1]})", 1)
-        num_segments = len(text_segments)
-        split_nodes = []
-        for i in range(num_segments):
-            if text_segments[i] == "":
+        for parsed_link in parsed_links:
+            if len(parsed_link) < 2:
                 continue
-            if i % 2 == 0:
-                split_nodes.append(TextNode(text_segments[i], "text"))
-            else:
-                split_nodes.append(TextNode(text_segments[i], "link"))
-        new_nodes.extend(split_nodes)
+            split_nodes = []
+            link_text = parsed_link[0]
+            url = parsed_link[1]
+            text_segments = old_node.text.split(f"[{link_text}]({url})", 1)
+            first = text_segments[0]
+            last = text_segments[1]
+            if first != "":
+                split_nodes.append(TextNode(first, "text"))
+            split_nodes.append(TextNode(link_text, "link", url))
+            if last != "":
+                split_nodes.append(TextNode(last, "text"))
+            new_nodes.extend(split_nodes)
     return new_nodes
 
 

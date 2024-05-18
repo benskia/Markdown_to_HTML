@@ -3,6 +3,8 @@ from inline_markdown import (
     split_nodes_delimiter,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_image,
+    split_nodes_link,
 )
 from textnode import TextNode, text_node_to_html_node
 
@@ -89,3 +91,29 @@ class TestInlineMarkdown(unittest.TestCase):
         input = "Text with a [link](https://example.com) link."
         output = [("link", "https://example.com")]
         self.assertEqual(extract_markdown_links(input), output)
+
+    def test_image_splitter(self):
+        node = TextNode(
+            "Text with an ![image](https://image.source) embedded image.", "text"
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("Text with an ", "text"),
+                TextNode("image", "image", "https://image.source"),
+                TextNode(" embedded image.", "text"),
+            ],
+            new_nodes,
+        )
+
+    def test_link_splitter(self):
+        node = TextNode("Text with a [link](https://example.com) link.", "text")
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("Text with a ", "text"),
+                TextNode("link", "link", "https://example.com"),
+                TextNode(" link.", "text"),
+            ],
+            new_nodes,
+        )
