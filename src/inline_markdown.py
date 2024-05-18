@@ -1,11 +1,19 @@
 import re
-from textnode import TextNode
+from textnode import (
+    TextNode,
+    text_type_text,
+    text_type_bold,
+    text_type_italic,
+    text_type_code,
+    text_type_link,
+    text_type_image,
+)
 
 
 def text_to_textnodes(text):
-    initial_node = [TextNode(text, "text")]
+    initial_node = [TextNode(text, text_type_text)]
     new_nodes = split_nodes_link(split_nodes_image(initial_node))
-    delimiters = {"**": "bold", "*": "italic", "`": "code"}
+    delimiters = {"**": text_type_bold, "*": text_type_italic, "`": text_type_code}
     for delimiter, text_type in delimiters.items():
         new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
     return new_nodes
@@ -14,7 +22,7 @@ def text_to_textnodes(text):
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != "text":
+        if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
             continue
         text_segments = old_node.text.split(delimiter)
@@ -26,7 +34,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             if text_segments[i] == "":
                 continue
             if i % 2 == 0:
-                split_nodes.append(TextNode(text_segments[i], "text"))
+                split_nodes.append(TextNode(text_segments[i], text_type_text))
             else:
                 split_nodes.append(TextNode(text_segments[i], text_type))
         new_nodes.extend(split_nodes)
@@ -36,7 +44,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 def split_nodes_image(old_nodes):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != "text":
+        if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
             continue
         parsed_images = extract_markdown_images(old_node.text)
@@ -53,10 +61,10 @@ def split_nodes_image(old_nodes):
             first = text_segments[0]
             last = text_segments[1]
             if first != "":
-                split_nodes.append(TextNode(first, "text"))
-            split_nodes.append(TextNode(alt, "image", url))
+                split_nodes.append(TextNode(first, text_type_text))
+            split_nodes.append(TextNode(alt, text_type_image, url))
             if last != "":
-                split_nodes.append(TextNode(last, "text"))
+                split_nodes.append(TextNode(last, text_type_text))
             new_nodes.extend(split_nodes)
     return new_nodes
 
@@ -64,7 +72,7 @@ def split_nodes_image(old_nodes):
 def split_nodes_link(old_nodes):
     new_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type != "text":
+        if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
             continue
         parsed_links = extract_markdown_links(old_node.text)
@@ -81,10 +89,10 @@ def split_nodes_link(old_nodes):
             first = text_segments[0]
             last = text_segments[1]
             if first != "":
-                split_nodes.append(TextNode(first, "text"))
-            split_nodes.append(TextNode(link_text, "link", url))
+                split_nodes.append(TextNode(first, text_type_text))
+            split_nodes.append(TextNode(link_text, text_type_link, url))
             if last != "":
-                split_nodes.append(TextNode(last, "text"))
+                split_nodes.append(TextNode(last, text_type_text))
             new_nodes.extend(split_nodes)
     return new_nodes
 
