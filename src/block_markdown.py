@@ -7,7 +7,8 @@ def markdown_to_blocks(markdown):
         line = lines[i].strip()
         if line != "":
             block.append(line)
-        if line == "" or i == num_lines - 1:
+        end_of_block = (line == "" or i == num_lines - 1) and len(block) > 0
+        if end_of_block:
             blocks.append("\n".join(block))
             block = []
     return blocks
