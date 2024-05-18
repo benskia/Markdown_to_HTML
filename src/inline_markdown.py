@@ -2,6 +2,15 @@ import re
 from textnode import TextNode
 
 
+def text_to_textnodes(text):
+    initial_node = [TextNode(text, "text")]
+    new_nodes = split_nodes_link(split_nodes_image(initial_node))
+    delimiters = {"**": "bold", "*": "italic", "`": "code"}
+    for delimiter, text_type in delimiters.items():
+        new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
+    return new_nodes
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for old_node in old_nodes:
@@ -90,12 +99,3 @@ def extract_markdown_links(text):
     pattern = r"\[(.*?)\]\((.*?)\)"
     parsed_links = re.findall(pattern, text)
     return parsed_links
-
-
-def text_to_textnodes(text):
-    initial_node = [TextNode(text, "text")]
-    new_nodes = split_nodes_link(split_nodes_image(initial_node))
-    delimiters = {"**": "bold", "*": "italic", "`": "code"}
-    for delimiter, text_type in delimiters.items():
-        new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
-    return new_nodes
