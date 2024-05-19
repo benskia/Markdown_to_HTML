@@ -85,3 +85,14 @@ def ulist_block_to_html_node(block):
         return ParentNode("ul", list_items)
     else:
         raise Exception(err)
+
+
+def olist_block_to_html_node(block):
+    err = block_to_htmlnode_error(block, block_type_olist)
+    if err == None:
+        lines = block.split("\n")
+        cleaned_lines = [re.sub(r"\d+. ", "", line, count=1) for line in lines]
+        list_items = [LeafNode("li", line) for line in cleaned_lines]
+        return ParentNode("ol", list_items)
+    else:
+        raise Exception(err)
