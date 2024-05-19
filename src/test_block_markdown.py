@@ -10,6 +10,7 @@ from block_markdown import (
     block_type_ulist,
     block_type_olist,
 )
+from htmlnode import LeafNode, ParentNode
 
 
 class TestBlockMarkdown(unittest.TestCase):
@@ -91,3 +92,33 @@ This is the same paragraph on a new line""",
     def test_invalid_olist(self):
         input = "1. one\n5. five?\n3. three\n4. four"
         self.assertEqual(block_to_block_type(input), block_type_paragraph)
+
+    def test_markdown_to_html_node(self):
+        input = """
+## Heading
+
+A paragraph with **bolded** text, and
+a second line with *italic text.
+
+A one liner with `code` in it.
+
+* An
+* Unordered
+
+1. An
+2. Ordered
+
+> And finally
+> A blockquote
+            """
+        h2 = LeafNode("h2", "Heading")
+        p_multi_children = [
+            LeafNode(None, "A paragrah with "),
+            LeafNode("bold", "bolded"),
+            LeafNode(None, " text, and\na second line with "),
+            LeafNode("italic", "italic"),
+            LeafNode(None, " text."),
+        ]
+        p_multi = ParentNode("p", p_multi_children)
+        children = []
+        output = ParentNode("div", children)

@@ -1,6 +1,6 @@
 import re
 
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import LeafNode, ParentNode
 
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
@@ -41,58 +41,56 @@ def block_to_block_type(block):
     return block_type_paragraph
 
 
-def block_to_htmlnode_error(block, block_type):
-    if block_to_block_type(block) != block_type:
-        return f"Tried to use non-{block_type} block to create {block_type} html node."
-    return None
-
-
 def heading_block_to_html_node(block):
-    err = block_to_htmlnode_error(block, block_type_heading)
-    if err == None:
-        heading_rank = 0
-        while block[heading_rank] != " ":
-            heading_rank += 1
-        return LeafNode(f"h{heading_rank}", f"{block[heading_rank:]}")
-    else:
-        raise Exception(err)
+    heading_rank = 0
+    while block[heading_rank] != " ":
+        heading_rank += 1
+    return LeafNode(f"h{heading_rank}", f"{block[heading_rank:]}")
 
 
 def code_block_to_html_node(block):
-    err = block_to_htmlnode_error(block, block_type_code)
-    if err == None:
-        return LeafNode(f"code", f"{block[3:-3]}")
-    else:
-        raise Exception(err)
+    return LeafNode(f"code", f"{block[3:-3]}")
 
 
 def quote_block_to_html_node(block):
-    err = block_to_htmlnode_error(block, block_type_quote)
-    if err == None:
-        lines = block.split("\n")
-        quote = "\n".join([line.lstrip("> ") for line in lines])
-        return LeafNode(f"blockquote", f"{quote}")
-    else:
-        raise Exception(err)
+    lines = block.split("\n")
+    quote = "\n".join([line.lstrip("> ") for line in lines])
+    return LeafNode(f"blockquote", f"{quote}")
 
 
 def ulist_block_to_html_node(block):
-    err = block_to_htmlnode_error(block, block_type_ulist)
-    if err == None:
-        lines = block.split("\n")
-        cleaned_lines = [line.lstrip("* ").lstrip("- ") for line in lines]
-        list_items = [LeafNode("li", line) for line in cleaned_lines]
-        return ParentNode("ul", list_items)
-    else:
-        raise Exception(err)
+    lines = block.split("\n")
+    cleaned_lines = [line.lstrip("* ").lstrip("- ") for line in lines]
+    list_items = [LeafNode("li", line) for line in cleaned_lines]
+    return ParentNode("ul", list_items)
 
 
 def olist_block_to_html_node(block):
-    err = block_to_htmlnode_error(block, block_type_olist)
-    if err == None:
-        lines = block.split("\n")
-        cleaned_lines = [re.sub(r"\d+. ", "", line, count=1) for line in lines]
-        list_items = [LeafNode("li", line) for line in cleaned_lines]
-        return ParentNode("ol", list_items)
-    else:
-        raise Exception(err)
+    lines = block.split("\n")
+    cleaned_lines = [re.sub(r"\d+. ", "", line, count=1) for line in lines]
+    list_items = [LeafNode("li", line) for line in cleaned_lines]
+    return ParentNode("ol", list_items)
+
+
+def paragraph_block_to_html_node(block):
+    return ParentNode("p", block)
+
+
+def markdown_to_html_node(markdown):
+    children = []
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        if block_type == block_type_heading:
+            children.append(heading_block_to_html_node(block))
+        if block_type == block_type_code:
+            children.append(code_block_to_html_node(block))
+        if block_type == block_type_quote:
+            children.append(quote_block_to_html_node(block))
+        if block_type == block_type_ulist:
+            children.append(ulist_block_to_html_node(block))
+        if block_type == block_type_olist:
+            children.append(olist_block_to_html_node(block))
+        if block_type == block_type_paragraph:
+            children.append(paragraph_block_to_html_node(block))
+    return ParentNode("div", children)
