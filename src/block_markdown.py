@@ -1,6 +1,7 @@
 import re
 
 from htmlnode import LeafNode, ParentNode
+from inline_markdown import text_to_textnodes
 
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
@@ -73,7 +74,8 @@ def olist_block_to_html_node(block):
 
 
 def paragraph_block_to_html_node(block):
-    return ParentNode("p", block)
+    text_nodes = text_to_textnodes(block)
+    return ParentNode("p", text_nodes)
 
 
 def markdown_to_html_node(markdown):
