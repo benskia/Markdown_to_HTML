@@ -2,6 +2,7 @@ import re
 
 from htmlnode import LeafNode, ParentNode
 from inline_markdown import text_to_textnodes
+from textnode import text_node_to_html_node
 
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
@@ -46,17 +47,17 @@ def heading_block_to_html_node(block):
     heading_rank = 0
     while block[heading_rank] != " ":
         heading_rank += 1
-    return LeafNode(f"h{heading_rank}", f"{block[heading_rank:]}")
+    return LeafNode(f"h{heading_rank}", f"{block[heading_rank+1:]}")
 
 
 def code_block_to_html_node(block):
-    return LeafNode(f"code", f"{block[3:-3]}")
+    return LeafNode("code", f"{block[3:-3]}")
 
 
 def quote_block_to_html_node(block):
     lines = block.split("\n")
     quote = "\n".join([line.lstrip("> ") for line in lines])
-    return LeafNode(f"blockquote", f"{quote}")
+    return LeafNode("blockquote", f"{quote}")
 
 
 def ulist_block_to_html_node(block):
@@ -75,7 +76,10 @@ def olist_block_to_html_node(block):
 
 def paragraph_block_to_html_node(block):
     text_nodes = text_to_textnodes(block)
-    return ParentNode("p", text_nodes)
+    children = []
+    for text_node in text_nodes:
+        children.append(text_node_to_html_node(text_node))
+    return ParentNode("p", children)
 
 
 def markdown_to_html_node(markdown):

@@ -9,6 +9,7 @@ from block_markdown import (
     block_type_quote,
     block_type_ulist,
     block_type_olist,
+    markdown_to_html_node,
 )
 from htmlnode import LeafNode, ParentNode
 
@@ -98,27 +99,26 @@ This is the same paragraph on a new line""",
 ## Heading
 
 A paragraph with **bolded** text, and
-a second line with *italic text.
+a second line with *italic* text.
 
 A one liner with `code` in it.
 
 * An
 * Unordered
+* List
 
 1. An
 2. Ordered
+3. List
 
 > And finally
 > A blockquote
             """
-        h2 = LeafNode("h2", "Heading")
-        p_multi_children = [
-            LeafNode(None, "A paragrah with "),
-            LeafNode("bold", "bolded"),
-            LeafNode(None, " text, and\na second line with "),
-            LeafNode("italic", "italic"),
-            LeafNode(None, " text."),
-        ]
-        p_multi = ParentNode("p", p_multi_children)
-        children = []
-        output = ParentNode("div", children)
+        h2 = "<h2>Heading</h2>"
+        p_multi = "<p>A paragraph with <b>bolded</b> text, and\na second line with <i>italic</i> text.</p>"
+        p_single = "<p>A one liner with <code>code</code> in it.</p>"
+        ulist = "<ul><li>An</li><li>Unordered</li><li>List</li></ul>"
+        olist = "<ol><li>An</li><li>Ordered</li><li>List</li></ol>"
+        quote = "<blockquote>And finally\nA blockquote</blockquote>"
+        output = f"<div>{h2}{p_multi}{p_single}{ulist}{olist}{quote}</div>"
+        self.assertEqual(markdown_to_html_node(input).to_html(), output)
