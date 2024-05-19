@@ -74,3 +74,14 @@ def quote_block_to_html_node(block):
         return LeafNode(f"blockquote", f"{quote}")
     else:
         raise Exception(err)
+
+
+def ulist_block_to_html_node(block):
+    err = block_to_htmlnode_error(block, block_type_ulist)
+    if err == None:
+        lines = block.split("\n")
+        cleaned_lines = [line.lstrip("* ").lstrip("- ") for line in lines]
+        list_items = [LeafNode("li", line) for line in cleaned_lines]
+        return ParentNode("ul", list_items)
+    else:
+        raise Exception(err)
