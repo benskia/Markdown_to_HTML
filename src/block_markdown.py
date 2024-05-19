@@ -29,17 +29,11 @@ def block_to_block_type(block):
         return block_type_heading
     if re.match(r"^```.*```$", block):
         return block_type_code
-    if re.match(r"^> .*$", block):
+    if all([re.match(r"^> .*$", line) for line in block.split("\n")]):
         return block_type_quote
-    if re.match(r"^[*-] .*$", block):
+    if all([re.match(r"^[*-] .*$", line) for line in block.split("\n")]):
         return block_type_ulist
-    if block[:3] == "1. ":
-        valid_olist = True
-        lines = block.split("\n")
-        for i in range(len(lines)):
-            if lines[i][:3] != f"{i+1}. ":
-                valid_olist = False
-                break
-        if valid_olist:
-            return block_type_ulist
+    lines = block.split("\n")
+    if all([re.match(rf"^{i+1}. .*$", lines[i]) for i in range(len(lines))]):
+        return block_type_olist
     return block_type_paragraph
