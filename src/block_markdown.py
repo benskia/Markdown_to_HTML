@@ -1,5 +1,7 @@
 import re
 
+from htmlnode import HTMLNode, LeafNode, ParentNode
+
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
 block_type_code = "code"
@@ -37,3 +39,38 @@ def block_to_block_type(block):
     if all([re.match(rf"^{i+1}. .*$", lines[i]) for i in range(len(lines))]):
         return block_type_olist
     return block_type_paragraph
+
+
+def block_to_htmlnode_error(block, block_type):
+    if block_to_block_type(block) != block_type:
+        return f"Tried to use non-{block_type} block to create {block_type} html node."
+    return None
+
+
+def heading_block_to_html_node(block):
+    err = block_to_htmlnode_error(block, block_type_heading)
+    if err == None:
+        heading_rank = 0
+        while block[heading_rank] != " ":
+            heading_rank += 1
+        return LeafNode(f"h{heading_rank}", f"{block[heading_rank:]}")
+    else:
+        raise Exception(err)
+
+
+def code_block_to_html_node(block):
+    err = block_to_htmlnode_error(block, block_type_code)
+    if err == None:
+        return LeafNode(f"code", f"{block[3:-3]}")
+    else:
+        raise Exception(err)
+
+
+def quote_block_to_html_node(block):
+    err = block_to_htmlnode_error(block, block_type_quote)
+    if err == None:
+        lines = block.split("\n")
+        quote = "\n".join([line.lstrip("> ") for line in lines])
+        return LeafNode(f"blockquote", f"{quote}")
+    else:
+        raise Exception(err)
