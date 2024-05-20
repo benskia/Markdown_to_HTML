@@ -1,4 +1,4 @@
-from os.path import dirname
+from os import makedirs
 
 from block_markdown import (
     heading_block_to_html_node,
@@ -32,4 +32,6 @@ def generate_page(from_path, template_path, dest_path):
         return
     template_markdown = template_markdown.replace("{{ Title }}", title)
     template_markdown = template_markdown.replace("{{ Content }}", from_html)
-    working_directory = dirname(dest_path)
+    makedirs(dest_path, exist_ok=True)
+    with open(dest_path, "w") as f:
+        f.write(template_markdown)
