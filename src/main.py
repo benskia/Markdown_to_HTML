@@ -6,10 +6,10 @@ from textnode import TextNode
 def main():
     source_directory = "./static"
     desination_directory = "./public"
-    build_static_site_project(source_directory, desination_directory)
+    copy_static(source_directory, desination_directory)
 
 
-def build_static_site_project(source, destination):
+def copy_static(source, destination):
     rmtree(destination)
     mkdir(destination)
     ls = get_ls(source)
