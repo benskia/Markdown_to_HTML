@@ -1,4 +1,5 @@
 from os import makedirs
+from os.path import dirname
 
 from block_markdown import (
     heading_block_to_html_node,
@@ -10,13 +11,12 @@ from block_markdown import (
 
 
 def extract_title(markdown):
-    with open(markdown, "r") as f:
-        blocks = markdown_to_blocks(f.read())
-        for block in blocks:
-            if block_to_block_type(block) == block_type_heading:
-                heading = heading_block_to_html_node(block)
-                if heading.tag == "h1":
-                    return heading.value
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if block_to_block_type(block) == block_type_heading:
+            heading = heading_block_to_html_node(block)
+            if heading.tag == "h1":
+                return heading.value
     raise Exception(f"No h1 block founds in markdown file {markdown}.")
 
 
@@ -32,6 +32,6 @@ def generate_page(from_path, template_path, dest_path):
         return
     template_markdown = template_markdown.replace("{{ Title }}", title)
     template_markdown = template_markdown.replace("{{ Content }}", from_html)
-    makedirs(dest_path, exist_ok=True)
+    makedirs(dirname(dest_path), exist_ok=True)
     with open(dest_path, "w") as f:
         f.write(template_markdown)
