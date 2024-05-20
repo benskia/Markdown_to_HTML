@@ -1,5 +1,5 @@
-from os import makedirs
-from os.path import dirname
+from os import makedirs, mkdir
+from os.path import dirname, exists, isfile, join, isdir
 
 from block_markdown import (
     heading_block_to_html_node,
@@ -8,6 +8,7 @@ from block_markdown import (
     block_type_heading,
     markdown_to_html_node,
 )
+from copystatic import get_ls
 
 
 def extract_title(markdown):
@@ -35,3 +36,18 @@ def generate_page(from_path, template_path, dest_path):
     makedirs(dirname(dest_path), exist_ok=True)
     with open(dest_path, "w") as f:
         f.write(template_markdown)
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    if not exists(dest_dir_path):
+        mkdir(dest_dir_path)
+    ls = get_ls(dir_path_content)
+    for item in ls:
+        content_item_path = join(dir_path_content, item)
+        dest_item_path = join(dest_dir_path, item)
+        if isdir(content_item_path):
+            generate_pages_recursive(content_item_path, template_path, dest_item_path)
+        elif isfile(content_item_path) and item.endswith(".md"):
+            generate_page(content_item_path, template_path, dest_item_path)
+        else:
+            print("Item is neither directory nor file.")
