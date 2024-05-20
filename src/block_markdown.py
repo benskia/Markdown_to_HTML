@@ -1,7 +1,7 @@
 import re
 
 from htmlnode import LeafNode, ParentNode
-from inline_markdown import text_to_textnodes
+from inline_markdown import split_nodes_delimiter, text_to_textnodes
 from textnode import text_node_to_html_node
 
 block_type_paragraph = "paragraph"
@@ -47,7 +47,8 @@ def heading_block_to_html_node(block):
     heading_rank = 0
     while block[heading_rank] != " ":
         heading_rank += 1
-    return LeafNode(f"h{heading_rank}", f"{block[heading_rank+1:]}")
+    children = split_nodes_delimiter(block.lstrip("# "))
+    return ParentNode(f"h{heading_rank}", children)
 
 
 def code_block_to_html_node(block):
