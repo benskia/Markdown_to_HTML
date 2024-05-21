@@ -76,7 +76,11 @@ def ulist_block_to_html_node(block):
 def olist_block_to_html_node(block):
     lines = block.split("\n")
     cleaned_lines = [re.sub(r"\d+. ", "", line, count=1) for line in lines]
-    list_items = [LeafNode("li", line) for line in cleaned_lines]
+    line_textnode_collection = [text_to_textnodes(line) for line in cleaned_lines]
+    list_items = []
+    for textnodes in line_textnode_collection:
+        children = [text_node_to_html_node(textnode) for textnode in textnodes]
+        list_items.append(ParentNode("li", children))
     return ParentNode("ol", list_items)
 
 
