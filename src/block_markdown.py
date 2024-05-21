@@ -47,7 +47,8 @@ def heading_block_to_html_node(block):
     heading_rank = 0
     while block[heading_rank] != " ":
         heading_rank += 1
-    children = text_to_textnodes(block.lstrip("# "))
+    textnodes = text_to_textnodes(block.lstrip("# "))
+    children = [text_node_to_html_node(textnode) for textnode in textnodes]
     return ParentNode(f"h{heading_rank}", children)
 
 
@@ -76,10 +77,8 @@ def olist_block_to_html_node(block):
 
 
 def paragraph_block_to_html_node(block):
-    text_nodes = text_to_textnodes(block)
-    children = []
-    for text_node in text_nodes:
-        children.append(text_node_to_html_node(text_node))
+    textnodes = text_to_textnodes(block)
+    children = [text_node_to_html_node(textnode) for textnode in textnodes]
     return ParentNode("p", children)
 
 

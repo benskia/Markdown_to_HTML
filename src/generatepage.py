@@ -16,8 +16,8 @@ def extract_title(markdown):
     for block in blocks:
         if block_to_block_type(block) == block_type_heading:
             heading = heading_block_to_html_node(block)
-            if heading.tag == "h1":
-                return heading.value
+            if heading.tag == "h1" and heading.children:
+                return " ".join([child.value for child in heading.children])
     raise Exception(f"No h1 block founds in markdown file {markdown}.")
 
 
@@ -27,10 +27,8 @@ def generate_page(from_path, template_path, dest_path):
         from_markdown = f.read()
     with open(template_path, "r") as f:
         template_markdown = f.read()
-    from_html = markdown_to_html_node(from_markdown).to_html()
     title = extract_title(from_markdown)
-    if not title:
-        return
+    from_html = markdown_to_html_node(from_markdown).to_html()
     template_markdown = template_markdown.replace("{{ Title }}", title)
     template_markdown = template_markdown.replace("{{ Content }}", from_html)
     makedirs(dirname(dest_path), exist_ok=True)
@@ -43,10 +41,11 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         mkdir(dest_dir_path)
     ls = get_ls(dir_path_content)
     for item in ls:
-        content_item_path = join(dir_path_content, item)
-        dest_item_path = join(dest_dir_path, item)
-        if isdir(content_item_path):
-            generate_pages_recursive(content_item_path, template_path, dest_item_path)
-        elif isfile(content_item_path) and item.endswith(".md"):
-            dest_item_path = join(dest_item_path.replace(".md", ".html"))
-            generate_page(content_item_path, template_path, dest_item_path)
+        item_path = join(dir_path_content, item)
+        if isdir(item_path):
+            generate_pages_recursive(
+                item_path, template_path, join(dest_dir_path, item)
+            )
+        elif isfile(item_path) and item_path.endswith(".md"):
+            item_dest_path = join(dest_dir_path, item.replace(".md", ".html"))
+            generate_page(item_path, template_path, item_dest_path)
